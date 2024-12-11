@@ -59,6 +59,10 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ec2-3-93-31-4.compute-1.amazonaws.com >> ~/.ssh/known_hosts
 
+      - name: Debug Artifact Directory
+        run: |
+          ls -l ./artifact    
+
       - name: Run Ansible Playbook
         run: |
           ansible-playbook -i inventory.yml deploy.yml
