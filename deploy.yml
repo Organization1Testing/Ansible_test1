@@ -5,7 +5,7 @@
     - name: Transfer WAR File
       ansible.builtin.copy:
         src: /home/runner/work/Ansible_test1/Ansible_test1/artifact/*.war
-        dest: /tmp/MyApp.war
+        dest: /tmp/*.war
 
     - name: Restart Application
       service:
