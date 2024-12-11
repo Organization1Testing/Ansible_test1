@@ -24,6 +24,9 @@ jobs:
           sudo apt update
           sudo apt install -y maven
           mvn clean install
+
+      - name: Debug Target Directory
+        run: |
           ls -l target/
 
       - name: Upload Build Artifact
@@ -31,8 +34,7 @@ jobs:
         with:
           name: build-artifact
           path: target/*.war  # Adjust this path based on your project structure
-          ls -l target/
-
+    
   deploy:
     name: Deploy with Ansible
     runs-on: ubuntu-latest
