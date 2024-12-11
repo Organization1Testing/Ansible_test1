@@ -69,7 +69,6 @@
           [Install]
           WantedBy=multi-user.target
       notify:
-        - Reload systemd
         - Enable Tomcat service
         - Start Tomcat service
         
