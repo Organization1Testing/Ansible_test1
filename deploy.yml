@@ -4,8 +4,8 @@
   tasks:
     - name: Copy WAR file to server
       copy:
-        src: /home/runner/work/Ansible/Ansible/target/MyApp.war
-        dest: /opt/tomcat/webapps/MyApp.war
+        src: /home/runner/work/Ansible/Ansible/target/MyWebApp-1.0-SNAPSHOT.war
+        dest: /opt/tomcat/MyWebApp-1.0-SNAPSHOT.war
 
     - name: Restart Application
       service:
