@@ -44,7 +44,7 @@
     - name: Start Tomcat
       command: /opt/tomcat/apache-tomcat-9.0.98/bin/startup.sh
     
-  	- name: Check if Tomcat PID file exists
+    - name: Check if Tomcat PID file exists
       stat:
         path: /opt/tomcat/apache-tomcat-9.0.98/temp/tomcat.pid
       register: tomcat_pid
@@ -55,12 +55,12 @@
         msg: "Tomcat is not running. PID file not found."
       when: not tomcat_pid.stat.exists
 
-    # Ensure the Tomcat service is running (optional)
+    # Ensure the Tomcat service is running if the PID file exists
     - name: Ensure Tomcat service is running
       service:
         name: tomcat9
         state: started
-      when: tomcat_pid.stat.exists
+      when: tomcat_pid.stat.exists	  
         
     - name: Transfer WAR File
       ansible.builtin.copy:
