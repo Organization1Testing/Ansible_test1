@@ -15,12 +15,12 @@
 
     - name: Install Tomcat
       apt:
-        name: tomcat9
+        name: tomcat8
         state: present
 
     - name: Ensure Tomcat is running    
       service:
-        name: tomcat9
+        name: tomcat8
         state: started
         enabled: true
         
@@ -31,5 +31,5 @@
 
     - name: Restart Application
       service:
-        name: tomcat9
+        name: tomcat8
         state: restarted
