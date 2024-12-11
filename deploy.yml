@@ -18,12 +18,21 @@
         url: https://downloads.apache.org/tomcat/tomcat-9/v9.0.98/bin/apache-tomcat-9.0.98.tar.gz
         dest: /tmp/apache-tomcat-9.0.98.tar.gz
 
+    - name: Create Tomcat directory
+      file:
+        path: /opt/tomcat
+        state: directory
+        owner: ubuntu  # Replace with the correct user
+        group: ubuntu  # Replace with the correct group
+        mode: '0755' 
+        recurse: yes
+
     - name: Extract Tomcat
       unarchive:
         src: /tmp/apache-tomcat-9.0.98.tar.gz
         dest: /opt/tomcat
         remote_src: yes
-
+        
     - name: Set permissions for Tomcat
       file:
         path: /opt/tomcat
@@ -31,7 +40,7 @@
         group: ubuntu
         mode: '0755'
         recurse: yes
-
+        
     - name: Start Tomcat
       command: /opt/tomcat/bin/startup.sh
 
