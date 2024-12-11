@@ -4,7 +4,7 @@
   tasks:
     - name: Transfer WAR File
       ansible.builtin.copy:
-        src: /home/runner/work/Ansible/Ansible/target/MyApp.war
+        src: /home/runner/work/Ansible_test1/Ansible_test1/artifact/*.war
         dest: /opt/tomcat/webapps/MyApp.war
 
     - name: Restart Application
