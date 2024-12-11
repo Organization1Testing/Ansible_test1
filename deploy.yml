@@ -41,10 +41,18 @@
         mode: '0755'
         recurse: yes
         
-    - name: Start Tomcat
+    - name: Stop Tomcat
+      command: /opt/tomcat/apache-tomcat-9.0.98/bin/shutdown.sh
+        
+    - name: Transfer WAR File
+      ansible.builtin.copy:
+        src: /home/runner/work/Ansible_test1/Ansible_test1/artifact/MyWebApp.war
+        dest: /opt/tomcat/apache-tomcat-9.0.98/webapps/MyWebApp.war
+
+    - name: Restart Tomcat
       command: /opt/tomcat/apache-tomcat-9.0.98/bin/startup.sh
-    
-    - name: Check if Tomcat PID file exists
+
+    - name: Check Tomcat status by checking if PID file exists
       stat:
         path: /opt/tomcat/apache-tomcat-9.0.98/temp/tomcat.pid
       register: tomcat_pid
@@ -53,14 +61,4 @@
     - name: Fail if Tomcat is not running (PID file not found)
       fail:
         msg: "Tomcat is not running. PID file not found."
-      when: not tomcat_pid.stat.exists
-        
-    - name: Transfer WAR File
-      ansible.builtin.copy:
-        src: /home/runner/work/Ansible_test1/Ansible_test1/artifact/MyWebApp.war
-        dest: /opt/tomcat/apache-tomcat-9.0.98/webapps/MyWebApp.war
-
-    - name: Restart Application
-      service:
-        name: tomcat9
-        state: restarted
+      when: not tomcat_pid.stat.exists  
