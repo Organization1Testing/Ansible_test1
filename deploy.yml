@@ -42,7 +42,7 @@
         recurse: yes
         
     - name: Start Tomcat
-      command: /opt/tomcat/bin/startup.sh
+      command: /opt/tomcat/apache-tomcat-9.0.98/bin/startup.sh
 
     - name: Ensure Tomcat is running    
       service:
@@ -53,9 +53,9 @@
     - name: Transfer WAR File
       ansible.builtin.copy:
         src: /home/runner/work/Ansible_test1/Ansible_test1/artifact/MyWebApp.war
-        dest: /var/lib/tomcat9/webapps/MyWebApp.war
+        dest: /opt/tomcat/apache-tomcat-9.0.98/webapps/MyWebApp.war
 
     - name: Restart Application
       service:
-        name: tomcat8
+        name: tomcat9
         state: restarted
