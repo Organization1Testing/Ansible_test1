@@ -4,9 +4,8 @@
   tasks:
     - name: Transfer WAR File
       ansible.builtin.copy:
-        src: target/MyWebApp.war
+        src: /home/runner/work/Ansible_test1/Ansible_test1/artifact/MyWebApp.war
         dest: /tmp/
-        remote_src: yes
 
     - name: Restart Application
       service:
