@@ -1,5 +1,4 @@
----
-- name: Deploy Application #deploy
+- name: Deploy Application
   hosts: all
   tasks:
     - name: Transfer WAR File
