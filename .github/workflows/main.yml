@@ -28,13 +28,18 @@ jobs:
       - name: Debug Target Directory
         run: |
           ls -l target/
+          pwd
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v3
         with:
           name: build-artifact
           path: target/*.war  # Adjust this path based on your project structure
-    
+
+      - name: present working dir check   
+        run: |  
+          pwd
+          
   deploy:
     name: Deploy with Ansible
     runs-on: ubuntu-latest
@@ -45,6 +50,10 @@ jobs:
         with:
           name: build-artifact
           path: ./artifact  # Specify the folder to download the artifact
+
+      - name: present working dir check      
+        run : | 
+          pwd
 
       - name: Checkout code
         uses: actions/checkout@v3    
@@ -63,7 +72,7 @@ jobs:
 
       - name: Debug Artifact Directory
         run: |
-          ls -l ./artifact    
+          ls -l /home/runner/work/Ansible_test1/Ansible_test1/artifact    
 
       - name: Run Ansible Playbook
         run: |
