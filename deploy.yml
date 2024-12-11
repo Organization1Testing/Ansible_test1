@@ -1,24 +1,25 @@
 ---
-- name: Install Java
-  apt:
-    name: openjdk-11-jdk
-    state: present
-
-- name: Install Tomcat
-  apt:
-    name: tomcat9
-    state: present
-
-- name: Ensure Tomcat is running
-  service:
-    name: tomcat9
-    state: started
-    enabled: true
-
-
 - name: Deploy Application
   hosts: all
+  become: true
   tasks:
+
+    - name: Install Java
+      apt:
+        name: openjdk-11-jdk
+        state: present
+
+    - name: Install Tomcat
+      apt:
+        name: tomcat9
+        state: present
+
+    - name: Ensure Tomcat is running    
+      service:
+        name: tomcat9
+        state: started
+        enabled: true
+        
     - name: Transfer WAR File
       ansible.builtin.copy:
         src: /home/runner/work/Ansible_test1/Ansible_test1/artifact/MyWebApp.war
