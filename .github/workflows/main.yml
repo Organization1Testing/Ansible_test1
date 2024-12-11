@@ -43,6 +43,9 @@ jobs:
           name: build-artifact
           path: ./artifact  # Specify the folder to download the artifact
 
+      - name: Checkout code
+        uses: actions/checkout@v3    
+
       - name: Install Ansible
         run: |
           sudo apt update
