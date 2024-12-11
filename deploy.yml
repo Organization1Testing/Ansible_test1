@@ -4,7 +4,7 @@
   tasks:
     - name: Transfer WAR File
       ansible.builtin.copy:
-        src: /home/runner/work/Ansible_test1/Ansible_test1/target/MyWebApp.war
+        src: target/MyWebApp.war
         dest: /tmp/
         remote_src: yes
 
