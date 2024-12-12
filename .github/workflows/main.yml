@@ -69,7 +69,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ec2-3-93-31-4.compute-1.amazonaws.com >> ~/.ssh/known_hosts
+          ssh-keyscan -H ec2-34-228-58-104.compute-1.amazonaws.com >> ~/.ssh/known_hosts
 
       - name: Debug Artifact Directory
         run: |
