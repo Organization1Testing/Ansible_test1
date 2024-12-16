@@ -25,20 +25,11 @@ jobs:
           sudo apt install -y maven
           mvn clean install
 
-      - name: Debug Target Directory
-        run: |
-          ls -l target/
-          pwd
-
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v3
         with:
           name: build-artifact
           path: target/*.war  # Adjust this path based on your project structure
-
-      - name: present working dir check   
-        run: |  
-          pwd
           
   deploy:
     name: Deploy with Ansible
@@ -53,11 +44,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: build-artifact
-          path: ./artifact  # Specify the folder to download the artifact
-
-      - name: present working dir check      
-        run : | 
-          pwd  
+          path: ./artifact  # Specify the folder to download the artifact 
 
       - name: Install Ansible
         run: |
