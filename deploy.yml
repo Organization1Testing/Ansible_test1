@@ -44,10 +44,15 @@
     - name: Stop Tomcat
       command: /opt/tomcat/apache-tomcat-9.0.98/bin/shutdown.sh
 
-    - name: Remove old WAR file
-      file:
-        path: /opt/tomcat/apache-tomcat-9.0.98/webapps/MyWebApp.war  # Path to the old WAR file
-        state: absent
+    - name: Check if the old WAR file exists
+      stat:
+        path: /opt/tomcat/apache-tomcat-9.0.98/webapps/MyWebApp.war  # Path to the existing WAR file
+      register: war_file
+
+    - name: Backup old WAR file if it exists
+      command:
+        cmd: mv /opt/tomcat/apache-tomcat-9.0.98/webapps/MyWebApp.war /opt/tomcat/apache-tomcat-9.0.98/webapps/MyWebApp{{ ansible_date_time.date }}.war
+      when: war_file.stat.exists
         
     - name: Transfer WAR File
       ansible.builtin.copy:
