@@ -19,6 +19,17 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Deploy and Install Software on EC2
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            # Print debugging information
+            ssh -vvv ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}    
+
       - name: Deploy Application via SSH
         uses: appleboy/ssh-action@v0.1.7
         with:
