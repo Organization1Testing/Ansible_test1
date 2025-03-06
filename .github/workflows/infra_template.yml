@@ -19,6 +19,10 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Test SSH Connection to EC2
+        run: |
+          ssh -i ~/.ssh/id_rsa ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "uname -a"    
+
       - name: Deploy and Install Software on EC2
         uses: appleboy/ssh-action@v0.1.8
         with:
