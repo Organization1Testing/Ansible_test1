@@ -22,13 +22,13 @@ jobs:
       - name: Deploy and Install Software on EC2
         uses: appleboy/ssh-action@v0.1.8
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
             # Print debugging information
-            ssh -vvv ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}    
+            ssh -vvv ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}    
 
       - name: Deploy Application via SSH
         uses: appleboy/ssh-action@v0.1.7
