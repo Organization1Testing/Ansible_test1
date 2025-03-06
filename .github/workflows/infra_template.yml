@@ -45,10 +45,10 @@ jobs:
             fi
 
             # Download the application artifact from Artifactory
-            wget https://artifactory.example.com/path/to/app.war -O /tmp/app.war
+            sudo cp /home/runner/work/Ansible_test1/Ansible_test1/artifact/MyWebApp.war -O /tmp/MyWebApp.war
 
             # Deploy the WAR file into Jetty's webapps directory
-            sudo cp /tmp/app.war /opt/jetty/webapps/
+            sudo cp /tmp/MyWebApp.war /opt/jetty/webapps/
 
             # Optionally, start memcached (if not already running)
             sudo systemctl start memcached
