@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up SSH key (if needed)
         uses: webfactory/ssh-agent@v0.8.0
@@ -39,7 +39,7 @@ jobs:
           clean deploy -DskipTests
 
       - name: Archive Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
           path: |
