@@ -1,37 +1,50 @@
-pipeline:
-  agent:
-    label: any
- 
-  environment:
-    JAVA_HOME: /usr/java/jdk1.8.0_171/
-    MAVEN_HOME: /opt/maven/apache-maven-3.2.2
-    PATH: "$JAVA_HOME/bin:$MAVEN_HOME/bin:$PATH"
- 
-  stages:
-    - stage: Checkout
-      steps:
-        - checkout:
-            scm:
-              git:
-                url: "ssh://git@stash.barnesandnoble.com:7777/nook_cloud_eng/bncloud.git"
-                credentialsId: "your-ssh-credentials-id"
-                branch: "dev"
-                browser:
-                  type: "stash"
-                  url: "http://stash.barnesandnoble.com/projects/NOOK_CLOUD_ENG/repos/bncloud/"
- 
-    - stage: Build
-      steps:
-        - sh: >
-            mvn -f pom.xml -e -Pjenkins -Djunit 
-            -Dbuild.id=$JOB_NAME-$BUILD_NUMBER 
-            -Dscm.rev=$GIT_COMMIT 
-            -Dscm.branch=$GIT_BRANCH 
-            -Dbuild.date=$BUILD_ID 
-            clean deploy -DskipTests
- 
-    - stage: Archive Artifacts
-      steps:
-        - archiveArtifacts:
-            artifacts: '**/target/*.zip, **/target/BNC-L10n*.jar, **/target/BNC-JettyCustomization*.jar, **/target/*Web*.war, **/target/BNC-Mock-Partners*.war'
-            fingerprint: true
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:  # Allows manual trigger from GitHub UI
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      JAVA_HOME: /usr/java/jdk1.8.0_171/
+      MAVEN_HOME: /opt/maven/apache-maven-3.2.2
+      PATH: $JAVA_HOME/bin:$MAVEN_HOME/bin:$PATH
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up SSH key (if needed)
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Clone Repository via SSH
+        run: |
+          git clone --branch dev ssh://git@stash.barnesandnoble.com:7777/nook_cloud_eng/bncloud.git
+
+      - name: Build with Maven
+        run: |
+          cd bncloud
+          mvn -f pom.xml -e -Pjenkins -Djunit \
+          -Dbuild.id=$GITHUB_JOB-$GITHUB_RUN_NUMBER \
+          -Dscm.rev=$GITHUB_SHA \
+          -Dscm.branch=$GITHUB_REF_NAME \
+          -Dbuild.date=$(date +%Y%m%d%H%M%S) \
+          clean deploy -DskipTests
+
+      - name: Archive Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: |
+            **/target/*.zip
+            **/target/BNC-L10n*.jar
+            **/target/BNC-JettyCustomization*.jar
+            **/target/*Web*.war
+            **/target/BNC-Mock-Partners*.war
