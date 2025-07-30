@@ -1,63 +1,37 @@
-name: CI/CD Pipeline
+pipeline:
+  agent:
+    label: any
  
-on:
-  push:
-    branches:
-      - main
+  environment:
+    JAVA_HOME: /usr/java/jdk1.8.0_171/
+    MAVEN_HOME: /opt/maven/apache-maven-3.2.2
+    PATH: "$JAVA_HOME/bin:$MAVEN_HOME/bin:$PATH"
  
-jobs:
-  build:
-    name: Build and Test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+  stages:
+    - stage: Checkout
+      steps:
+        - checkout:
+            scm:
+              git:
+                url: "ssh://git@stash.barnesandnoble.com:7777/nook_cloud_eng/bncloud.git"
+                credentialsId: "your-ssh-credentials-id"
+                branch: "dev"
+                browser:
+                  type: "stash"
+                  url: "http://stash.barnesandnoble.com/projects/NOOK_CLOUD_ENG/repos/bncloud/"
  
-      - name: Setup Java (if applicable)
-        uses: actions/setup-java@v3
-        with:
-          java-version: '11'
-          distribution: 'temurin'
+    - stage: Build
+      steps:
+        - sh: >
+            mvn -f pom.xml -e -Pjenkins -Djunit 
+            -Dbuild.id=$JOB_NAME-$BUILD_NUMBER 
+            -Dscm.rev=$GIT_COMMIT 
+            -Dscm.branch=$GIT_BRANCH 
+            -Dbuild.date=$BUILD_ID 
+            clean deploy -DskipTests
  
-      - name: Install Dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y maven
-          mvn clean install
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-artifact
-          path: target/*.war  # Adjust this path based on your project structure
-  deploy:
-    name: Deploy with Ansible
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
- 
-      - name: Checkout code
-        uses: actions/checkout@v3  
-      - name: Download Build Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: build-artifact
-          path: ./artifact  # Specify the folder to download the artifact
- 
-      - name: Install Ansible
-        run: |
-          sudo apt update
-          sudo apt install -y ansible
-      - name: Configure SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ec2-54-83-76-29.compute-1.amazonaws.com >> ~/.ssh/known_hosts
-      - name: Debug Artifact Directory
-        run: |
-          ls -l /home/runner/work/Ansible_test1/Ansible_test1/artifact    
-      - name: Run Ansible Playbook
-        run: |
-          ansible-playbook -i inventory.yml deploy.yml
-        env:
-          ANSIBLE_HOST_KEY_CHECKING: "False"
+    - stage: Archive Artifacts
+      steps:
+        - archiveArtifacts:
+            artifacts: '**/target/*.zip, **/target/BNC-L10n*.jar, **/target/BNC-JettyCustomization*.jar, **/target/*Web*.war, **/target/BNC-Mock-Partners*.war'
+            fingerprint: true
