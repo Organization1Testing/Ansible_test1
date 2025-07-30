@@ -9,16 +9,22 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      JAVA_HOME: /usr/java/jdk1.8.0_171/
-      MAVEN_HOME: /opt/maven/apache-maven-3.2.2
-      PATH: $JAVA_HOME/bin:$MAVEN_HOME/bin:$PATH
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up SSH key (if needed)
+      - name: Set up JDK 8
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '8'
+
+      - name: Set up Maven
+        uses: stCarolas/setup-maven@v4
+        with:
+          maven-version: '3.2.2'
+
+      - name: Set up SSH key
         uses: webfactory/ssh-agent@v0.8.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
