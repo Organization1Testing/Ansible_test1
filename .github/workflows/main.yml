@@ -8,8 +8,6 @@ on:
 jobs:
   build:
     runs-on: self-hosted
-    env:
-      PATH: C:\Program Files\Git\usr\bin:${{ env.PATH }}
 
     steps:
       - name: Checkout
