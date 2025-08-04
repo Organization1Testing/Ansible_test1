@@ -1,4 +1,4 @@
-name: Build and Deploy
+name: CI/CD Pipeline
 
 on:
   push:
@@ -7,51 +7,59 @@ on:
 
 jobs:
   build:
-    runs-on: self-hosted
-
+    name: Build and Test
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Set up JDK 8
+      - name: Setup Java (if applicable)
         uses: actions/setup-java@v3
         with:
+          java-version: '11'
           distribution: 'temurin'
-          java-version: '8'
 
-      - name: Set up Maven
-        uses: stCarolas/setup-maven@v4
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y maven
+          mvn clean install
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v3
         with:
-          maven-version: '3.2.2'
+          name: build-artifact
+          path: target/*.war  # Adjust this path based on your project structure
+          
+  deploy:
+    name: Deploy with Ansible
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
 
-      - name: Set up SSH key
-        uses: webfactory/ssh-agent@v0.8.0
+      - name: Checkout code
+        uses: actions/checkout@v3  
+        
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v3
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          name: build-artifact
+          path: ./artifact  # Specify the folder to download the artifact 
+
+      - name: Install Ansible
+        run: |
+          sudo apt update
+          sudo apt install -y ansible
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ec2-54-83-76-29.compute-1.amazonaws.com >> ~/.ssh/known_hosts
+      - name: Debug Artifact Directory
+        run: |
+          ls -l /home/runner/work/Ansible_test1/Ansible_test1/artifact    
+      - name: Run Ansible Playbook
+        run: |
+          ansible-playbook -i inventory.yml deploy.yml
         env:
-          PATH: C:\Program Files\Git\usr\bin:${{ env.PATH }}
-
-      - name: Clone Repository via SSH
-        run: |
-          git clone --branch dev ssh://git@stash.barnesandnoble.com:7777/nook_cloud_eng/bncloud.git
-
-      - name: Build with Maven
-        run: |
-          cd bncloud
-          mvn -f pom.xml -e -Pjenkins -Djunit \
-          -Dbuild.id=$GITHUB_JOB-$GITHUB_RUN_NUMBER \
-          -Dscm.rev=$GITHUB_SHA \
-          -Dscm.branch=$GITHUB_REF_NAME \
-          -Dbuild.date=$(date +%Y%m%d%H%M%S) \
-          clean deploy -DskipTests
-
-      - name: Archive Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifacts
-          path: |
-            **/target/*.zip
-            **/target/BNC-L10n*.jar
-            **/target/BNC-JettyCustomization*.jar
-            **/target/*Web*.war
-            **/target/BNC-Mock-Partners*.war
+          ANSIBLE_HOST_KEY_CHECKING: "False"
