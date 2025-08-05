@@ -19,7 +19,6 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
           
-
       - name: Install Dependencies
         run: |
           sudo apt update
