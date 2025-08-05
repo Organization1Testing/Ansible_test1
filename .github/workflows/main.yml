@@ -33,7 +33,7 @@ jobs:
 
   deploy:
     name: Deploy to Local Mac
-    runs-on: self-hosted  # Use self-hosted runner for local network access
+    runs-on: [self-hosted, BCTUS-MACBOOK11]
     needs: build
     steps:
       - name: Checkout code
@@ -67,6 +67,6 @@ jobs:
 
       - name: Deploy Artifact to Local Mac
         run: |
-          scp -i ~/.ssh/id_rsa_gh ./artifact/*.war <SSH_USER>@192.168.1.89:<DESTINATION_PATH>
+          scp -i ~/.ssh/id_rsa_gh ./artifact/*.war vinothk@192.168.1.89:/Users/vinothk/Documents
         env:
           ANSIBLE_HOST_KEY_CHECKING: "False"
