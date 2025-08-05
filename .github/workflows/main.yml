@@ -77,7 +77,7 @@ jobs:
 
       - name: Deploy Artifact to Local Mac
         run: |
-          scp -i ~/.ssh/id_rsa_ga ./artifact/*.war vinothk@192.168.1.89:/Users/vinothk/Documents
-          ssh -i ~/.ssh/id_rsa_ga vinothk@192.168.1.89 "ls -l /Users/vinothk/Documents"
+          scp -i ~/.ssh/id_rsa_ga ./artifact/*.war vinothk@192.168.1.89:/Users/vinothk/Documents/deployments
+          ssh -i ~/.ssh/id_rsa_ga vinothk@192.168.1.89 "ls -l /Users/vinothk/Documents/deployments"
         env:
           ANSIBLE_HOST_KEY_CHECKING: "False"
