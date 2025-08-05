@@ -1,0 +1,65 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y maven
+          mvn clean install
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact
+          path: target/*.war
+
+  deploy:
+    name: Deploy to Local Mac
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifact
+          path: ./artifact
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa_gh
+          chmod 600 ~/.ssh/id_rsa_gh
+          ssh-keyscan -H 192.168.1.89 >> ~/.ssh/known_hosts
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"
+
+      - name: Debug Artifact Directory
+        run: |
+          ls -l ./artifact
+
+      - name: Deploy Artifact to Local Mac
+        run: |
+          scp -i ~/.ssh/id_rsa_gh ./artifact/*.war vinothk@192.168.1.89:/Users/vinothk/Documents
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"
