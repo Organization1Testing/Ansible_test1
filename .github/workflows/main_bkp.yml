@@ -53,8 +53,3 @@ jobs:
       - name: Debug Artifact Directory
         run: |
           ls -l /home/runner/work/Ansible_test1/Ansible_test1/artifact    
-      - name: Run Ansible Playbook
-        run: |
-          ansible-playbook -i inventory.yml deploy.yml
-        env:
-          ANSIBLE_HOST_KEY_CHECKING: "False"
