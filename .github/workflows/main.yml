@@ -36,9 +36,6 @@ jobs:
     runs-on: [self-hosted, BCTUS-MACBOOK11]
     needs: build
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       - name: Debug Runner Environment
         run: |
           echo "Runner hostname: $(hostname)"
@@ -46,6 +43,7 @@ jobs:
           echo "Working directory: $(pwd)"
           df -h
           ls -l
+          echo "Runner labels: $(/bin/bash -c 'echo $RUNNER_LABELS')"
 
       - name: Debug Network and SSH
         run: |
@@ -70,5 +68,6 @@ jobs:
       - name: Deploy Artifact to Local Mac
         run: |
           scp -i ~/.ssh/id_rsa_gh ./artifact/*.war vinothk@192.168.1.89:/Users/vinothk/Documents
+          ssh <username>@192.168.1.89 "ls -l /Users/vinothk/Documents"
         env:
           ANSIBLE_HOST_KEY_CHECKING: "False"
