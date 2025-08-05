@@ -19,58 +19,51 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
 
-      - name: Install Maven and Build
+      - name: Install Dependencies
         run: |
           sudo apt update
           sudo apt install -y maven
           mvn clean install
-
-      - name: Prepare artifact directory
-        run: |
-          mkdir -p artifact
-          cp target/*.war artifact/
-
-      - name: Debug Artifact Directory
-        run: ls -l artifact
-
-      - name: Upload Build Artifact (optional)
+      - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: build-artifact
-          path: artifact/*.war
+          path: target/*.war
 
   deploy:
     name: Deploy to Local Mac
-    runs-on: macos-latest
+    runs-on: macOS
     needs: build
     steps:
-      - name: Checkout code (optional, if needed)
-        uses: actions/checkout@v4
-
+      - name: Debug Runner Environment
+        run: |
+          echo "Runner hostname: $(hostname)"
+          echo "Current user: $(whoami)"
+          echo "Working directory: $(pwd)"
+          df -h
+          ls -l
+          echo "Runner labels: $(/bin/bash -c 'echo $RUNNER_LABELS')"
+      - name: Debug Network and SSH
+        run: |
+          nslookup 192.168.1.89 || true
+          ping -c 4 192.168.1.89 || true
+          nc -zv 192.168.1.89 22 || true
+          ssh-keyscan -H 192.168.1.89 || true
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY_VIN }}" | tr -d '\r' > ~/.ssh/id_rsa_ga
+          echo "${{ secrets.SSH_PRIVATE_KEY_VIN }}" > ~/.ssh/id_rsa_ga
           chmod 600 ~/.ssh/id_rsa_ga
           ssh-keyscan -H 192.168.1.89 >> ~/.ssh/known_hosts
         env:
           ANSIBLE_HOST_KEY_CHECKING: "False"
 
-      - name: Debug Network and SSH
+      - name: Debug Artifact Directory
         run: |
-          ping -c 4 192.168.1.89 || true
-          nc -zv 192.168.1.89 22 || true
-          ssh -i ~/.ssh/id_rsa_ga vinothk@192.168.1.89 "echo SSH connection works"
-
-      - name: Download Build Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifact
-          path: ./artifact
-
+          ls -l ./artifact
       - name: Deploy Artifact to Local Mac
         run: |
-          scp -i ~/.ssh/id_rsa_ga ./artifact/*.war vinothk@192.168.1.89:/Users/vinothk/Documents
-          ssh -i ~/.ssh/id_rsa_ga vinothk@192.168.1.89 "ls -l /Users/vinothk/Documents"
+          scp -i ~/.ssh/id_rsa_gh ./artifact/*.war vinothk@192.168.1.89:/Users/vinothk/Documents
+          ssh <username>@192.168.1.89 "ls -l /Users/vinothk/Documents"
         env:
           ANSIBLE_HOST_KEY_CHECKING: "False"
