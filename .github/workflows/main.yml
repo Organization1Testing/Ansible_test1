@@ -21,7 +21,6 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
           sudo apt update
           sudo apt install -y maven
           mvn clean install
