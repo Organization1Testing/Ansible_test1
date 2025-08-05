@@ -19,20 +19,26 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
 
-      - name: Install Dependencies
+      - name: Install Dependencies and Build
         run: |
           sudo apt update
           sudo apt install -y maven
           mvn clean install
+
+      - name: Prepare artifact directory
+        run: |
+          mkdir -p artifact
+          cp target/*.war artifact/
+
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: build-artifact
-          path: target/*.war
+          path: artifact/*.war
 
   deploy:
     name: Deploy to Local Mac
-    runs-on: macOS
+    runs-on: macos-latest
     needs: build
     steps:
       - name: Debug Runner Environment
@@ -43,27 +49,35 @@ jobs:
           df -h
           ls -l
           echo "Runner labels: $(/bin/bash -c 'echo $RUNNER_LABELS')"
+
       - name: Debug Network and SSH
         run: |
           nslookup 192.168.1.89 || true
           ping -c 4 192.168.1.89 || true
           nc -zv 192.168.1.89 22 || true
           ssh-keyscan -H 192.168.1.89 || true
+
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY_VIN }}" > ~/.ssh/id_rsa_ga
-          chmod 600 ~/.ssh/id_rsa_ga
+          echo "${{ secrets.SSH_PRIVATE_KEY_VIN }}" | tr -d '\r' > ~/.ssh/id_rsa_gh
+          chmod 600 ~/.ssh/id_rsa_gh
           ssh-keyscan -H 192.168.1.89 >> ~/.ssh/known_hosts
         env:
           ANSIBLE_HOST_KEY_CHECKING: "False"
 
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifact
+          path: ./artifact
+
       - name: Debug Artifact Directory
-        run: |
-          ls -l ./artifact
+        run: ls -l ./artifact
+
       - name: Deploy Artifact to Local Mac
         run: |
           scp -i ~/.ssh/id_rsa_gh ./artifact/*.war vinothk@192.168.1.89:/Users/vinothk/Documents
-          ssh <username>@192.168.1.89 "ls -l /Users/vinothk/Documents"
+          ssh -i ~/.ssh/id_rsa_gh vinothk@192.168.1.89 "ls -l /Users/vinothk/Documents"
         env:
           ANSIBLE_HOST_KEY_CHECKING: "False"
