@@ -60,7 +60,7 @@ jobs:
         run: |
           ping -c 4 192.168.1.89 || true
           nc -zv 192.168.1.89 22 || true
-          ssh -i ~/.ssh/id_rsa_gh vinothk@192.168.1.89 "echo SSH connection works"
+          ssh -i ~/.ssh/id_rsa_ga vinothk@192.168.1.89 "echo SSH connection works"
 
       - name: Download Build Artifact
         uses: actions/download-artifact@v4
@@ -70,7 +70,7 @@ jobs:
 
       - name: Deploy Artifact to Local Mac
         run: |
-          scp -i ~/.ssh/id_rsa_gh ./artifact/*.war vinothk@192.168.1.89:/Users/vinothk/Documents
-          ssh -i ~/.ssh/id_rsa_gh vinothk@192.168.1.89 "ls -l /Users/vinothk/Documents"
+          scp -i ~/.ssh/id_rsa_ga ./artifact/*.war vinothk@192.168.1.89:/Users/vinothk/Documents
+          ssh -i ~/.ssh/id_rsa_ga vinothk@192.168.1.89 "ls -l /Users/vinothk/Documents"
         env:
           ANSIBLE_HOST_KEY_CHECKING: "False"
