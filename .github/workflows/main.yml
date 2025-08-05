@@ -33,7 +33,7 @@ jobs:
 
   deploy:
     name: Deploy to Local Mac
-    runs-on: [self-hosted, BCTUS-MACBOOK11]
+    runs-on: macOS
     needs: build
     steps:
       - name: Debug Runner Environment
