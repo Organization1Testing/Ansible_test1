@@ -33,7 +33,7 @@ jobs:
 
   deploy:
     name: Deploy to Local Mac
-    runs-on: ubuntu-latest
+    runs-on: self-hosted  # Use self-hosted runner for local network access
     needs: build
     steps:
       - name: Checkout code
@@ -44,6 +44,13 @@ jobs:
         with:
           name: build-artifact
           path: ./artifact
+
+      - name: Debug Network and SSH
+        run: |
+          nslookup 192.168.1.89 || true
+          ping -c 4 192.168.1.89 || true
+          nc -zv 192.168.1.89 22 || true
+          ssh-keyscan -H 192.168.1.89 || true
 
       - name: Configure SSH
         run: |
@@ -60,6 +67,6 @@ jobs:
 
       - name: Deploy Artifact to Local Mac
         run: |
-          scp -i ~/.ssh/id_rsa_gh ./artifact/*.war vinothk@192.168.1.89:/Users/vinothk/Documents
+          scp -i ~/.ssh/id_rsa_gh ./artifact/*.war <SSH_USER>@192.168.1.89:<DESTINATION_PATH>
         env:
           ANSIBLE_HOST_KEY_CHECKING: "False"
